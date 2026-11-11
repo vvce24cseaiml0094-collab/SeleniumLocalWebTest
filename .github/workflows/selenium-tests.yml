@@ -3,10 +3,11 @@ name: Selenium Java Tests
 
 on:
   push:
-    branches: ["main"]
-
+    branches:
+      - main
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
 
 jobs:
   selenium-test:
@@ -16,12 +17,12 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-	  - name: Set up JDK 21
-		uses: actions/setup-java@v4
-		with:
-		  distribution: temurin
-		  java-version: '21'
-		  cache: maven
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
 
       - name: Set up Chrome
         uses: browser-actions/setup-chrome@v1
