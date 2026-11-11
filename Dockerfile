@@ -3,7 +3,7 @@ FROM maven:3.9.9-eclipse-temurin-21
 
 WORKDIR /app
 
-# Install dependencies required for Chrome
+# Install Chrome dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gnupg \
@@ -21,11 +21,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy Maven project
 COPY pom.xml .
 
-# Download Maven dependencies
+# Download dependencies
 RUN mvn dependency:resolve
 
-# Copy remaining project files
+# Copy source code
 COPY . .
 
-# Run Selenium tests
+# Execute Selenium tests
 CMD ["mvn", "clean", "test"]
