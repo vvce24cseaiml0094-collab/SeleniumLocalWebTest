@@ -1,34 +1,29 @@
 
-FROM maven:3.8.6-openjdk-17-slim AS build
+FROM maven:3.9.9-eclipse-temurin-21
 
 WORKDIR /app
 
-COPY pom.xml .
-
-COPY src ./src
-
-RUN mvn dependency:go-offline -B
-
-RUN mvn test-compile
-
-FROM openjdk:17-slim
-
-WORKDIR /app
-
+# Install Google Chrome
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
-    curl \
-    unzip \
-    libglib2.0-0 \
-    libnss3 \
-    libgconf-2-4 \
-    libfontconfig1 \
-    chromium \
+    ca-certificates \
+    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub \
+       | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" \
+       > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=build /app /app
+# Copy Maven configuration
+COPY pom.xml .
 
-ENV CHROME_BIN=/usr/bin/chromium
+# Download dependencies
+RUN mvn dependency:resolve
 
-CMD ["mvn", "test"]
+# Copy project files
+COPY . .
+
+# Run Selenium TestNG tests
+CMD ["mvn", "clean", "test"]
